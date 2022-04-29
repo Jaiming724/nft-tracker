@@ -1,8 +1,8 @@
 package dev.scratch.nfttracker.service;
 
 import com.google.gson.Gson;
-import dev.scratch.nfttracker.commands.NFTCommand;
 import dev.scratch.nfttracker.model.collection.Collection;
+import dev.scratch.nfttracker.model.mongo.NFTMongo;
 import dev.scratch.nfttracker.model.nft.NFT;
 import dev.scratch.nfttracker.model.stats.Stats;
 import dev.scratch.nfttracker.util.Values;
@@ -20,14 +20,14 @@ import java.util.concurrent.CompletableFuture;
 public class DataService {
     private final HttpClient client;
     private final Gson gson;
-    private static Logger logger = LoggerFactory.getLogger(DataService.class);
+    private static final Logger logger = LoggerFactory.getLogger(DataService.class);
 
     public DataService() {
         client = HttpClient.newHttpClient();
         gson = new Gson();
     }
 
-    public CompletableFuture<Collection> getCollection(String name) {
+    public CompletableFuture<NFTMongo> getCollection(String name, NFTMongo nftMongo) {
         HttpRequest request = HttpRequest
                 .newBuilder()
                 .uri(URI.create("https://api.opensea.io/api/v1/collection/" + name))
@@ -35,6 +35,11 @@ public class DataService {
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
                 .thenApply(s -> gson.fromJson(s, Collection.class))
+                .thenApply(collection -> {
+                    nftMongo.setContractAddress(collection.getContractAddress())
+                            .setCount(collection.getCount());
+                    return nftMongo;
+                })
                 .exceptionally(throwable -> {
                     logger.error("Exception:", throwable);
                     return null;
@@ -56,14 +61,20 @@ public class DataService {
                 .toCompletableFuture();
     }
 
-    public CompletableFuture<NFT> getNFTMetaData(String address, int tokenID) {
+    public CompletableFuture<NFTMongo> getNFTMetaData(NFTMongo nftMongo, int tokenID) {
         HttpRequest request = HttpRequest
                 .newBuilder()
-                .uri(URI.create(String.format("https://eth-mainnet.alchemyapi.io/v2/%s/getNFTMetadata?tokenId=%d&tokenType=ERC721&contractAddress=%s", Values.alchemyKey, tokenID, address)))
+                .uri(URI.create(String.format("https://eth-mainnet.alchemyapi.io/v2/%s/getNFTMetadata?tokenId=%d&tokenType=ERC721&contractAddress=%s", Values.alchemyKey, tokenID, nftMongo.getContractAddress())))
                 .build();
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
                 .thenApply(s -> gson.fromJson(s, NFT.class))
+                .thenApply(nft -> {
+                    if (nft.getMedia().get(0).getGateway() != null) {
+                        nftMongo.setMediaLink(nft.getMedia().get(0).getGateway());
+                    }
+                    return nftMongo;
+                })
                 .exceptionally(throwable -> {
                     logger.error("Exception:", throwable);
                     return null;

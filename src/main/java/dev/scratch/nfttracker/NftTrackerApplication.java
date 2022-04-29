@@ -26,6 +26,12 @@ public class NftTrackerApplication {
         Values.alchemyKey = dotenv.get("alchemyKey");
         Values.cloudinaryApiKey = dotenv.get("cloudinaryApiKey");
         Values.cloudinaryApiKeySecret = dotenv.get("cloudinaryApiKeySecret");
+        if (args[0].equals("production")) {
+            Values.mongoUrl = dotenv.get("mongoUrlProduction");
+        } else {
+            Values.mongoUrl = dotenv.get("mongoUrlLocal");
+        }
+        System.setProperty("spring.data.mongodb.uri", Values.mongoUrl);
 
 
         ApplicationContext context = SpringApplication.run(NftTrackerApplication.class, args);

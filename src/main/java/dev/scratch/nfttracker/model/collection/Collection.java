@@ -14,9 +14,23 @@ public class Collection {
         this.collection = collection;
     }
 
-
+    public String getCount() {
+        String count;
+        try {
+            count = collection.getPrimary_asset_contracts().get(0).getTotal_supply();
+        } catch (NullPointerException e) {
+            count = null;
+        }
+        return count;
+    }
 
     public String getContractAddress() {
-        return collection.getPrimary_asset_contracts().get(0).getAddress();
+        String address;
+        try {
+            address = collection.getPrimary_asset_contracts().get(0).getAddress();
+        } catch (NullPointerException e) {
+            address = null;
+        }
+        return address;
     }
 }

@@ -1,6 +1,7 @@
 package dev.scratch.nfttracker.model.mongo;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -17,8 +18,20 @@ public class NFTMongo {
     private String count;
     private List<Destination> servers;
     private List<Image> image;
+
     public String getId() {
         return id;
+    }
+
+    @Transient
+    private String mediaLink;
+
+    public String getMediaLink() {
+        return mediaLink;
+    }
+
+    public void setMediaLink(String mediaLink) {
+        this.mediaLink = mediaLink;
     }
 
     public void setId(String id) {

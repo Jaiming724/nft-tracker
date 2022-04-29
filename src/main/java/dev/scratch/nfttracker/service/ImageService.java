@@ -31,8 +31,8 @@ public class ImageService {
         this.nftService = nftService;
     }
 
-    public CompletableFuture<String> getImage(NFT nft, String fileName, String filePath, NFTMongo nftMongo, int tokenID) {
-        return CompletableFuture.supplyAsync(() -> fetchImage(nft, fileName, filePath, nftMongo, tokenID))
+    public CompletableFuture<String> getImage(String fileName, String filePath, NFTMongo nftMongo, int tokenID) {
+        return CompletableFuture.supplyAsync(() -> fetchImage(fileName, filePath, nftMongo, tokenID))
                 .exceptionally(throwable -> {
                     logger.error("Exception:", throwable);
                     return null;
@@ -40,14 +40,17 @@ public class ImageService {
                 .completeOnTimeout(null, 45, TimeUnit.SECONDS);
     }
 
-    private String fetchImage(NFT nft, String fileName, String filePath, NFTMongo nftMongo, int tokenID) {
-        String linkToNFT = nft.getMedia().get(0).getGateway();
+    private String fetchImage(String fileName, String filePath, NFTMongo nftMongo, int tokenID) {
+        String linkToNFT = nftMongo.getMediaLink();
 
         if (linkToNFT == null) {
             logger.warn("Could not get image, nft gateway was null for {} {}", nftMongo.getName(), tokenID);
             return null;
         }
-
+        if (nftMongo.getContractAddress() == null) {
+            logger.warn("Could not get image, nft contract address was null for {} {}", nftMongo.getName(), tokenID);
+            return null;
+        }
         String temp = nftService.getImageUrl(nftMongo.getName(), String.valueOf(tokenID));
         if (temp != null) {
             logger.info(String.format("%s %d image url found at %s", nftMongo.getName(), tokenID, temp));
@@ -69,6 +72,8 @@ public class ImageService {
             nftMongo.setImage(singletonList(new Image(String.valueOf(tokenID), imageLink)));
 
             insertImageUrl(nftMongo, tokenID, imageLink);
+            File file = new File(filePath);
+            file.delete();
             return imageLink;
         } catch (IOException e) {
             logger.error("IOException", e);
@@ -80,11 +85,11 @@ public class ImageService {
         logger.info(String.format("inserting image url for %s %d at %s", nftMongo.getName(), tokenID, imageLink));
 
         if (!nftService.containNFt(nftMongo.getName())) {
-            logger.info(String.format("No Document with the name %s, inserting document", nftMongo.getName()));
+            logger.info(String.format("No NFT with the name %s, inserting document", nftMongo.getName()));
             nftService.insert(nftMongo);
 
         } else {
-            logger.info(String.format("Found Document with the name %s, inserting sub doc", nftMongo.getName()));
+            logger.info(String.format("Found NFT with the name %s, inserting sub doc", nftMongo.getName()));
             nftService.addImage(String.valueOf(tokenID), imageLink, nftMongo.getName());
         }
 

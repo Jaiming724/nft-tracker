@@ -61,31 +61,11 @@ public class NFTCommand implements CommandExecutor {
 
         logger.info("Received Request for {} {}", name, tokenID);
 
-        dataService.getCollection(name)
-                .thenCompose(collection -> {
-                    if (collection.getCollection().getPrimary_asset_contracts().size() == 0) {
-                        logger.warn(String.format("No Contract address found for %s %d", name, tokenID));
-                        throw new NoContractAddressException();
-                    }
-                    nftMongo.setContractAddress(collection.getContractAddress())
-                            .setCount(collection.getCollection().getPrimary_asset_contracts().get(0).getTotal_supply());
-                    return dataService.getNFTMetaData(collection.getContractAddress(), tokenID);
-                })
-                .thenCompose((nft) -> imageService.getImage(nft, fileName, filePath, nftMongo, tokenID))
-                .thenAccept(s -> {
-                    File file = new File(filePath);
-                    file.delete();
-                    sendMessage(s, nftMongo, tokenID, channel);
-                })
-                .handle((msg, ex) -> {
-                    if (ex != null) {
-                        new MessageBuilder().append("This NFT is not yet supported").send((TextChannel) channel);
-                        if (!ex.getMessage().contains("No Contract Address Found")) {
-                            logger.error("Exception:", ex);
-                        }
-                    }
-                    return null;
-                });
+        dataService.getCollection(name, nftMongo)
+                .thenCompose(nftMongo1 -> dataService.getNFTMetaData(nftMongo1, tokenID))
+                .thenCompose((nftMongo1) -> imageService.getImage(fileName, filePath, nftMongo1, tokenID))
+                .thenAccept(url -> sendMessage(url, nftMongo, tokenID, channel))
+                .exceptionally(ExceptionLogger.get());
         return null;
     }
 
