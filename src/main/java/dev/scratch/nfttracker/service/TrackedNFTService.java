@@ -11,6 +11,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TrackedNFTService {
     private final TrackedNFTRepository trackedNFTRepository;
@@ -42,4 +44,7 @@ public class TrackedNFTService {
         return findByName(name) != null;
     }
 
+    public List<TrackedNFT> getAll() {
+        return trackedNFTRepository.findAll();
+    }
 }

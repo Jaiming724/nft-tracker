@@ -71,6 +71,30 @@ public class DataService {
                 .toCompletableFuture();
     }
 
+    public CompletableFuture<Integer> getStats(String name) {
+        HttpRequest request = HttpRequest
+                .newBuilder()
+                .uri(URI.create(String.format("https://api.opensea.io/api/v1/collection/%s/stats", name)))
+                .build();
+        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenApply(s -> gson.fromJson(s, Stats.class))
+                .thenApply(stats -> {
+                    int count;
+                    try {
+                        count = stats.getStatsHelper().getCount();
+                    } catch (NullPointerException e) {
+                        return null;
+                    }
+                    return count;
+                })
+                .exceptionally(throwable -> {
+                    logger.error("Exception:", throwable);
+                    return null;
+                })
+                .toCompletableFuture();
+    }
+
     public CompletableFuture<NFTMongo> getNFTMetaData(NFTMongo nftMongo, int tokenID) {
         HttpRequest request = HttpRequest
                 .newBuilder()
