@@ -15,8 +15,6 @@ public class NFTMongo {
     private String name;
     @Field(value = "contract_address")
     private String contractAddress;
-    private String count;
-    private List<Destination> servers;
     private List<Image> image;
 
     public String getId() {
@@ -42,8 +40,9 @@ public class NFTMongo {
         return name;
     }
 
-    public void setName(String name) {
+    public NFTMongo setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getContractAddress() {
@@ -53,22 +52,6 @@ public class NFTMongo {
     public NFTMongo setContractAddress(String contractAddress) {
         this.contractAddress = contractAddress;
         return this;
-    }
-
-    public String getCount() {
-        return count;
-    }
-
-    public void setCount(String count) {
-        this.count = count;
-    }
-
-    public List<Destination> getServers() {
-        return servers;
-    }
-
-    public void setServers(List<Destination> servers) {
-        this.servers = servers;
     }
 
     public List<Image> getImage() {

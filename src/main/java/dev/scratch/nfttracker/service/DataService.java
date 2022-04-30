@@ -3,6 +3,7 @@ package dev.scratch.nfttracker.service;
 import com.google.gson.Gson;
 import dev.scratch.nfttracker.model.collection.Collection;
 import dev.scratch.nfttracker.model.mongo.NFTMongo;
+import dev.scratch.nfttracker.model.mongo.TrackedNFT;
 import dev.scratch.nfttracker.model.nft.NFT;
 import dev.scratch.nfttracker.model.stats.Stats;
 import dev.scratch.nfttracker.util.Values;
@@ -36,8 +37,7 @@ public class DataService {
                 .thenApply(HttpResponse::body)
                 .thenApply(s -> gson.fromJson(s, Collection.class))
                 .thenApply(collection -> {
-                    nftMongo.setContractAddress(collection.getContractAddress())
-                            .setCount(collection.getCount());
+                    nftMongo.setContractAddress(collection.getContractAddress());
                     return nftMongo;
                 })
                 .exceptionally(throwable -> {
@@ -46,7 +46,7 @@ public class DataService {
                 }).toCompletableFuture();
     }
 
-    public CompletableFuture<Stats> getStats(String name) {
+    public CompletableFuture<TrackedNFT> getStats(String name, TrackedNFT nft) {
         HttpRequest request = HttpRequest
                 .newBuilder()
                 .uri(URI.create(String.format("https://api.opensea.io/api/v1/collection/%s/stats", name)))
@@ -54,6 +54,16 @@ public class DataService {
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
                 .thenApply(s -> gson.fromJson(s, Stats.class))
+                .thenApply(stats -> {
+                    int count;
+                    try {
+                        count = stats.getStatsHelper().getCount();
+                    } catch (NullPointerException e) {
+                        return null;
+                    }
+                    nft.setName(name).setCount(count);
+                    return nft;
+                })
                 .exceptionally(throwable -> {
                     logger.error("Exception:", throwable);
                     return null;

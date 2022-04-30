@@ -33,14 +33,6 @@ public class NFTService {
         mt.updateFirst(Query.query(Criteria.where("name").is(nftName)), new Update().push("image", newImage), NFTMongo.class);
     }
 
-    public void addDestination(String nftName, Destination destination) {
-        mt.updateFirst(Query.query(Criteria.where("name").is(nftName)), new Update().push("servers", destination), NFTMongo.class);
-    }
-
-    public void setCount(String nftName, String count) {
-        mt.updateFirst(Query.query(Criteria.where("name").is(nftName)), new Update().set("count", count), NFTMongo.class);
-    }
-
     public NFTMongo findByName(String name) {
         return nftRepository.findNFTMongoByName(name);
     }

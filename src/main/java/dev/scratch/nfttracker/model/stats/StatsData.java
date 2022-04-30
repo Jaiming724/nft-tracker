@@ -145,8 +145,8 @@ public class StatsData {
         this.total_supply = total_supply;
     }
 
-    public double getCount() {
-        return count;
+    public int getCount() {
+        return (int) count;
     }
 
     public void setCount(double count) {
