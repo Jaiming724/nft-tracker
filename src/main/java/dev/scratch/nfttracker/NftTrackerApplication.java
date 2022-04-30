@@ -11,11 +11,13 @@ import org.javacord.api.DiscordApiBuilder;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @SpringBootApplication
+@EnableScheduling
 public class NftTrackerApplication {
 
     public static void main(String[] args) {
@@ -35,8 +37,7 @@ public class NftTrackerApplication {
 
 
         ApplicationContext context = SpringApplication.run(NftTrackerApplication.class, args);
-        DiscordApi api = new DiscordApiBuilder().setToken(dotenv.get("discordToken")).login().join();
-        CommandHandler handler = new JavacordHandler(api);
+        CommandHandler handler =context.getBean(CommandHandler.class);
 
         handler.registerCommand(context.getBean(NFTCommand.class));
         handler.registerCommand(context.getBean(TrackNFTCommand.class));
