@@ -4,9 +4,6 @@ import de.btobastian.sdcf4j.Command;
 import de.btobastian.sdcf4j.CommandExecutor;
 import dev.scratch.nfttracker.model.mongo.NFTMongo;
 import dev.scratch.nfttracker.service.DataService;
-import dev.scratch.nfttracker.service.ImageService;
-import dev.scratch.nfttracker.service.NFTService;
-import dev.scratch.nfttracker.util.NoContractAddressException;
 import org.javacord.api.entity.channel.Channel;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
@@ -17,26 +14,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class NFTCommand implements CommandExecutor {
     private static Logger logger = LoggerFactory.getLogger(NFTCommand.class);
-    private NFTService nftService;
     private DataService dataService;
-    private ImageService imageService;
 
     @Autowired
-    public NFTCommand(NFTService nftService, DataService dataService, ImageService imageService) {
-        this.nftService = nftService;
+    public NFTCommand(DataService dataService) {
         this.dataService = dataService;
-        this.imageService = imageService;
     }
-
 
     @Command(aliases = {"!nft"}, description = "Preview an NFT", usage = "!nft nft_name token_number")
     public String onInfoCommand(String[] str, Channel channel) {
@@ -53,17 +41,9 @@ public class NFTCommand implements CommandExecutor {
 
         NFTMongo nftMongo = new NFTMongo();
         nftMongo.setName(name);
-        String fileName = String.format("%s-%d", name, tokenID);
-
-        Path currentRelativePath = Paths.get("");
-        String absolutePath = currentRelativePath.toAbsolutePath().toString();
-        String filePath = String.format("%s/%s.jpg", absolutePath, fileName);
 
         logger.info("Received Request for {} {}", name, tokenID);
-
-        dataService.getCollection(name, nftMongo)
-                .thenCompose(nftMongo1 -> dataService.getNFTMetaData(nftMongo1, tokenID))
-                .thenCompose((nftMongo1) -> imageService.getImage(fileName, filePath, nftMongo1, tokenID))
+        dataService.getImageURL(name, nftMongo, tokenID)
                 .thenAccept(url -> sendMessage(url, nftMongo, tokenID, channel))
                 .exceptionally(ExceptionLogger.get());
         return null;

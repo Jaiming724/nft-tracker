@@ -9,12 +9,15 @@ import dev.scratch.nfttracker.model.stats.Stats;
 import dev.scratch.nfttracker.util.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -22,10 +25,13 @@ public class DataService {
     private final HttpClient client;
     private final Gson gson;
     private static final Logger logger = LoggerFactory.getLogger(DataService.class);
+    private ImageService imageService;
 
-    public DataService() {
+    @Autowired
+    public DataService(ImageService imageService) {
         client = HttpClient.newHttpClient();
         gson = new Gson();
+        this.imageService = imageService;
     }
 
     public CompletableFuture<NFTMongo> getCollection(String name, NFTMongo nftMongo) {
@@ -114,5 +120,20 @@ public class DataService {
                     return null;
                 })
                 .toCompletableFuture();
+    }
+
+    public CompletableFuture<String> getImageURL(String name, NFTMongo nftMongo, int tokenID) {
+        String fileName = String.format("%s-%d", name, tokenID);
+
+        Path currentRelativePath = Paths.get("");
+        String absolutePath = currentRelativePath.toAbsolutePath().toString();
+        String filePath = String.format("%s/%s.jpg", absolutePath, fileName);
+        return getCollection(name, nftMongo)
+                .thenCompose(nftMongo1 -> getNFTMetaData(nftMongo1, tokenID))
+                .thenCompose((nftMongo1) -> imageService.getImage(fileName, filePath, nftMongo1, tokenID))
+                .exceptionally(throwable -> {
+                    logger.error("Exception: ", throwable);
+                    return null;
+                });
     }
 }
