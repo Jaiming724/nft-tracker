@@ -48,12 +48,16 @@ public class NFTChecker {
             logger.debug("Checking chance for {}, previous value was {}, current is {}", nft.getName(), nft.getCount(), count);
             if (count > nft.getCount()) {
                 logger.info("Detected change for {} from {} to {}", nft.getName(), nft.getCount(), count);
-                trackedNFTService.setCount(nft.getName(), count);
-                NFTMongo nftMongo = new NFTMongo();
-                nftMongo.setName(nft.getName());
+                for (int i = nft.getCount() + 1; i <= count; i++) {
+                    NFTMongo nftMongo = new NFTMongo();
+                    nftMongo.setName(nft.getName());
 
-                dataService.getImageURL(nft.getName(), nftMongo, count)
-                        .thenAccept(url -> sendEmbed(nft, count, url));
+                    int finalI = i;
+                    dataService.getImageURL(nft.getName(), nftMongo, i)
+                            .thenAccept(url -> sendEmbed(nft, finalI, url));
+                }
+                trackedNFTService.setCount(nft.getName(), count);
+
 
             }
         } else {
