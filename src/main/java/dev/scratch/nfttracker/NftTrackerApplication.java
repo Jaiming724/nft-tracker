@@ -1,6 +1,7 @@
 package dev.scratch.nfttracker;
 
 import de.btobastian.sdcf4j.CommandHandler;
+import dev.scratch.nfttracker.commands.HelpCommand;
 import dev.scratch.nfttracker.commands.NFTCommand;
 import dev.scratch.nfttracker.commands.TrackNFTCommand;
 import dev.scratch.nfttracker.util.Values;
@@ -38,6 +39,7 @@ public class NftTrackerApplication {
 
         handler.registerCommand(context.getBean(NFTCommand.class));
         handler.registerCommand(context.getBean(TrackNFTCommand.class));
+        handler.registerCommand(context.getBean(HelpCommand.class));
     }
 
 
