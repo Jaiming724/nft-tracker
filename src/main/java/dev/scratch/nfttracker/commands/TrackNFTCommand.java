@@ -3,6 +3,7 @@ package dev.scratch.nfttracker.commands;
 import de.btobastian.sdcf4j.Command;
 import de.btobastian.sdcf4j.CommandExecutor;
 import dev.scratch.nfttracker.model.mongo.Destination;
+import dev.scratch.nfttracker.model.mongo.ServerStats;
 import dev.scratch.nfttracker.model.mongo.TrackedNFT;
 import dev.scratch.nfttracker.service.DataService;
 import dev.scratch.nfttracker.service.NFTService;
@@ -54,7 +55,22 @@ public class TrackNFTCommand implements CommandExecutor {
         }
 
         logger.debug("Server {} has added {}", server.getIdAsString(), nftName);
-        Destination destination = new Destination(roleID, server.getIdAsString(), channel.getIdAsString());
+        Destination destination = new Destination(roleID, server.getIdAsString(), channel.getIdAsString()).setNftName(nftName);
+        if (serverStatsService.containsServer(server.getIdAsString())) {
+            if (serverStatsService.getCount(server.getIdAsString()) >= 1) {
+                return "Sorry, you can only track 1 NFT in one channel per server at this time. Please contact Pose#1715 if you are interested in adding more";
+            }
+            if (serverStatsService.containsNFT(nftName, server.getIdAsString(), channel.getIdAsString())) {
+                return "You have already added this NFT";
+            }
+            serverStatsService.addNFT(server.getIdAsString(), destination);
+        } else {
+            ServerStats serverStats = new ServerStats()
+                    .setServerID(server.getIdAsString())
+                    .setCount(1);
+            serverStats.getDestinations().add(destination);
+            serverStatsService.insert(serverStats);
+        }
 
         if (trackedNFTService.containNFt(nftName)) {
             logger.debug("{} already exists in NFT database, adding channel", nftName);
@@ -64,14 +80,29 @@ public class TrackNFTCommand implements CommandExecutor {
             TrackedNFT trackedNFT = new TrackedNFT();
             trackedNFT.getServers().add(destination);
             dataService.getStats(nftName, trackedNFT)
-                    .thenApply(this::addNFT)
+                    .thenApply(this::insertNFT)
                     .thenAccept(nft -> sendMessage(nft, channel));
-
         }
         return null;
     }
 
-    private TrackedNFT addNFT(TrackedNFT nft) {
+    @Command(aliases = {"!remove"}, description = "Remove an NFT", usage = "!remove NFT_Name")
+    public String removeNFT(String nftName, Channel channel, Server server, User user) {
+        if (nftName == null)
+            return "Please follow format !remove NFT_Name";
+
+        if (!server.isAdmin(user))
+            return "You need to have admin permissions to run this command";
+
+        if (!serverStatsService.containsServer(server.getIdAsString()) || !serverStatsService.containsNFT(nftName, server.getIdAsString(), channel.getIdAsString()))
+            return "NFT already removed !";
+
+
+        serverStatsService.removeNFT(nftName, server.getIdAsString(), channel.getIdAsString());
+        return "Removed NFT";
+    }
+
+    private TrackedNFT insertNFT(TrackedNFT nft) {
         if (nft != null) {
             trackedNFTService.insert(nft);
         }
