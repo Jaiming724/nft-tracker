@@ -4,8 +4,6 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import dev.scratch.nfttracker.model.mongo.Image;
 import dev.scratch.nfttracker.model.mongo.NFTMongo;
-import dev.scratch.nfttracker.model.nft.NFT;
-import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

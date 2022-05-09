@@ -1,9 +1,7 @@
 package dev.scratch.nfttracker.service;
 
-import dev.scratch.nfttracker.model.mongo.Destination;
 import dev.scratch.nfttracker.model.mongo.Image;
 import dev.scratch.nfttracker.model.mongo.NFTMongo;
-import dev.scratch.nfttracker.model.nft.NFT;
 import dev.scratch.nfttracker.repositories.NFTRepository;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,13 +1,10 @@
 package dev.scratch.nfttracker;
 
 import de.btobastian.sdcf4j.CommandHandler;
-import de.btobastian.sdcf4j.handler.JavacordHandler;
 import dev.scratch.nfttracker.commands.NFTCommand;
 import dev.scratch.nfttracker.commands.TrackNFTCommand;
 import dev.scratch.nfttracker.util.Values;
 import io.github.cdimascio.dotenv.Dotenv;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.DiscordApiBuilder;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -37,7 +34,7 @@ public class NftTrackerApplication {
 
 
         ApplicationContext context = SpringApplication.run(NftTrackerApplication.class, args);
-        CommandHandler handler =context.getBean(CommandHandler.class);
+        CommandHandler handler = context.getBean(CommandHandler.class);
 
         handler.registerCommand(context.getBean(NFTCommand.class));
         handler.registerCommand(context.getBean(TrackNFTCommand.class));

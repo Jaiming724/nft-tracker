@@ -10,8 +10,6 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
@@ -32,9 +30,7 @@ class ServerStatsServiceTest {
         serverStatsService = new ServerStatsService(serverStatsRepository, mongoTemplate);
         serverStats = new ServerStats();
         serverStats.setServerID("testingID")
-                .setCount(4)
-                .setDestinations(new ArrayList<>());
-
+                .setCount(4);
     }
 
     @Test
