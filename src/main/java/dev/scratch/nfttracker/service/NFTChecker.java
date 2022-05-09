@@ -46,6 +46,9 @@ public class NFTChecker {
     public void checkNFT(TrackedNFT nft, Integer count) {
         if (count != null) {
             logger.debug("Checking chance for {}, previous value was {}, current is {}", nft.getName(), nft.getCount(), count);
+            if (count < nft.getCount()) {
+                nft.setCount(count);
+            }
             if (count > nft.getCount()) {
                 logger.info("Detected change for {} from {} to {}", nft.getName(), nft.getCount(), count);
                 for (int i = nft.getCount() + 1; i <= count; i++) {
