@@ -1,14 +1,21 @@
 package dev.scratch.nfttracker.model.mongo;
 
 import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Document
 public class ServerStats {
     @BsonProperty(value = "server_id")
     private String serverID;
     @BsonProperty(value = "nft_names")
-    private List<Destination> nftNames;
+    private List<Destination> destinations;
+
+    public ServerStats() {
+        destinations = new ArrayList<>();
+    }
 
     private int count;
 
@@ -21,12 +28,12 @@ public class ServerStats {
         return this;
     }
 
-    public List<Destination> getNftNames() {
-        return nftNames;
+    public List<Destination> getDestinations() {
+        return destinations;
     }
 
-    public void setNftNames(List<Destination> nftNames) {
-        this.nftNames = nftNames;
+    public void setDestinations(List<Destination> destinations) {
+        this.destinations = destinations;
     }
 
     public int getCount() {

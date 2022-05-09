@@ -10,6 +10,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+
 @Service
 public class ServerStatsService {
     private final ServerStatsRepository serverStatsRepository;
@@ -25,14 +27,52 @@ public class ServerStatsService {
         serverStatsRepository.insert(serverStats);
     }
 
-    public ServerStats getCount(String serverID) {
-        return serverStatsRepository.findServerStatsByServerID(serverID);
+    public int getCount(String serverID) {
+        return serverStatsRepository.findServerStatsByServerID(serverID).getCount();
     }
 
-    public void addNFT(String nftName, String serverID, Destination server) {
-        int count = getCount(serverID).getCount();
-        mongoTemplate.updateFirst(Query.query(Criteria.where("server_id").is(serverID)), new Update().set("count", count + 1), ServerStats.class);
+    public void addNFT(String serverID, Destination server) {
+        int count = getCount(serverID);
+        mongoTemplate.updateFirst(Query.query(where("serverID").is(serverID)), new Update().set("count", count + 1), ServerStats.class);
 
-        mongoTemplate.updateFirst(Query.query(Criteria.where("server_id").is(serverID)), new Update().push(nftName, server), ServerStats.class);
+        mongoTemplate.updateFirst(Query.query(where("serverID").is(serverID)), new Update().push("destinations", server), ServerStats.class);
+    }
+
+    public void removeNFT(String nftName, String serverID, String channelID) {
+        int count = getCount(serverID);
+        mongoTemplate.updateFirst(Query.query(where("serverID").is(serverID)), new Update().set("count", count - 1), ServerStats.class);
+
+        Criteria criteria = new Criteria().andOperator(
+                Criteria.where("channel_id").is(channelID),
+                Criteria.where("nftName").is(nftName)
+        );
+        Query query = new Query(criteria);
+        mongoTemplate.updateMulti(new Query(where("serverID").is(serverID)), new Update().pull("destinations", query), ServerStats.class);
+
+    }
+
+    public ServerStats findByID(String id) {
+        return serverStatsRepository.findServerStatsByServerID(id);
+    }
+
+    public boolean containsServer(String id) {
+        return findByID(id) != null;
+    }
+
+    public boolean containsNFT(String nftName, String serverID, String channelID) {
+        ServerStats serverStats = serverStatsRepository.findServerStatsByServerID(serverID);
+        if (serverStats != null) {
+            for (Destination destination : serverStats.getDestinations()) {
+                if (destination.getNftName().equals(nftName) && destination.getChannelID().equals(channelID)) {
+                    System.out.println(destination.getNftName());
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void deleteAll() {
+        serverStatsRepository.deleteAll();
     }
 }

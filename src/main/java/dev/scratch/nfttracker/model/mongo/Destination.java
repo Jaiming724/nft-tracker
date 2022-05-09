@@ -9,6 +9,8 @@ public class Destination {
     private String serverID;
     @Field(value = "channel_id")
     private String channelID;
+    @Field
+    private String nftName;
 
     public Destination() {
     }
@@ -41,5 +43,14 @@ public class Destination {
 
     public void setChannelID(String channelID) {
         this.channelID = channelID;
+    }
+
+    public String getNftName() {
+        return nftName;
+    }
+
+    public Destination setNftName(String nftName) {
+        this.nftName = nftName;
+        return this;
     }
 }
