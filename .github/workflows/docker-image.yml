@@ -20,6 +20,7 @@ jobs:
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       run: |
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-
+    - name: maven package
+      run: mvn clean package
     - name: Build the Docker image
       run: docker build ./ -t nft-tracker:${SHORT_SHA} --build-arg key=${{secrets.JASYPT_PASSWORD}} 
