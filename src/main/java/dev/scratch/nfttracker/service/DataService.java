@@ -6,10 +6,10 @@ import dev.scratch.nfttracker.model.mongo.NFTMongo;
 import dev.scratch.nfttracker.model.mongo.TrackedNFT;
 import dev.scratch.nfttracker.model.nft.NFT;
 import dev.scratch.nfttracker.model.stats.Stats;
-import dev.scratch.nfttracker.util.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -26,6 +26,8 @@ public class DataService {
     private final Gson gson;
     private static final Logger logger = LoggerFactory.getLogger(DataService.class);
     private ImageService imageService;
+    @Value("${alchemyKey}")
+    private String alchemyKey;
 
     @Autowired
     public DataService(ImageService imageService) {
@@ -104,7 +106,7 @@ public class DataService {
     public CompletableFuture<NFTMongo> getNFTMetaData(NFTMongo nftMongo, int tokenID) {
         HttpRequest request = HttpRequest
                 .newBuilder()
-                .uri(URI.create(String.format("https://eth-mainnet.alchemyapi.io/v2/%s/getNFTMetadata?tokenId=%d&tokenType=ERC721&contractAddress=%s", Values.alchemyKey, tokenID, nftMongo.getContractAddress())))
+                .uri(URI.create(String.format("https://eth-mainnet.alchemyapi.io/v2/%s/getNFTMetadata?tokenId=%d&tokenType=ERC721&contractAddress=%s", alchemyKey, tokenID, nftMongo.getContractAddress())))
                 .build();
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
