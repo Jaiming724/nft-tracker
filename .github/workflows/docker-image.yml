@@ -25,4 +25,6 @@ jobs:
     - name: Build the Docker image
       run: docker build ./ -t nft-tracker:${SHORT_SHA} --build-arg key=${{secrets.JASYPT_PASSWORD}} 
     - name: Push Docker image
-      run: docker push nft-tracker:${SHORT_SHA}
+      run: |
+        docker image tag nft-tracker:${SHORT_SHA} scratchmaster/nft-tracker:${SHORT_SHA}
+        docker image push scratchmaster/nft-tracker:${SHORT_SHA}
