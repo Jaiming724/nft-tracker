@@ -62,6 +62,7 @@ public class NFTChecker {
                 trackedNFTService.setCount(nft.getName(), count);
 
 
+
             }
         } else {
             logger.warn(String.format("Supply for %s was empty. This NFT might no longer be supported", nft.getName()));

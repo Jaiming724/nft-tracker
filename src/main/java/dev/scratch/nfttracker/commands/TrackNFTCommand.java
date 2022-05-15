@@ -64,6 +64,7 @@ public class TrackNFTCommand implements CommandExecutor {
                 return "You have already added this NFT";
             }
             serverStatsService.addNFT(server.getIdAsString(), destination);
+
         } else {
             ServerStats serverStats = new ServerStats()
                     .setServerID(server.getIdAsString())
@@ -99,6 +100,7 @@ public class TrackNFTCommand implements CommandExecutor {
 
 
         serverStatsService.removeNFT(nftName, server.getIdAsString(), channel.getIdAsString());
+
         return "Removed NFT";
     }
 

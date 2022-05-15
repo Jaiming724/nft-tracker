@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
+
 @Service
 public class ServerStatsService {
     private final ServerStatsRepository serverStatsRepository;
@@ -74,5 +75,6 @@ public class ServerStatsService {
 
     public void deleteAll() {
         serverStatsRepository.deleteAll();
+
     }
 }
