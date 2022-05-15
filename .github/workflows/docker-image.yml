@@ -24,3 +24,5 @@ jobs:
       run: mvn clean package
     - name: Build the Docker image
       run: docker build ./ -t nft-tracker:${SHORT_SHA} --build-arg key=${{secrets.JASYPT_PASSWORD}} 
+    - name: Push Docker image
+      run: docker push nft-tracker:${SHORT_SHA}
