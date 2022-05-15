@@ -25,4 +25,9 @@ public class HelpCommand implements CommandExecutor {
         messageBuilder.send((TextChannel) channel);
     }
 
+    @Command(aliases = {"!invite"}, description = "Invite link for the bot", usage = "!invite")
+    public String invite(String[] str, Channel channel) {
+        return "https://discord.com/api/oauth2/authorize?client_id=957461306871529522&permissions=0&scope=bot";
+    }
+
 }
