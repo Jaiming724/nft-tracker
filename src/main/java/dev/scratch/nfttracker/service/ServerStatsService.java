@@ -2,6 +2,7 @@ package dev.scratch.nfttracker.service;
 
 import dev.scratch.nfttracker.model.mongo.Destination;
 import dev.scratch.nfttracker.model.mongo.ServerStats;
+import dev.scratch.nfttracker.model.mongo.TrackedNFT;
 import dev.scratch.nfttracker.repositories.ServerStatsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -49,6 +50,7 @@ public class ServerStatsService {
         );
         Query query = new Query(criteria);
         mongoTemplate.updateMulti(new Query(where("serverID").is(serverID)), new Update().pull("destinations", query), ServerStats.class);
+        mongoTemplate.updateMulti(new Query(where("name").is(nftName)), new Update().pull("servers", query), TrackedNFT.class);
 
     }
 
@@ -65,7 +67,6 @@ public class ServerStatsService {
         if (serverStats != null) {
             for (Destination destination : serverStats.getDestinations()) {
                 if (destination.getNftName().equals(nftName) && destination.getChannelID().equals(channelID)) {
-                    System.out.println(destination.getNftName());
                     return true;
                 }
             }
@@ -75,6 +76,5 @@ public class ServerStatsService {
 
     public void deleteAll() {
         serverStatsRepository.deleteAll();
-
     }
 }
