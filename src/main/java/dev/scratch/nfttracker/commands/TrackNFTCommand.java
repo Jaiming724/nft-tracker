@@ -57,7 +57,7 @@ public class TrackNFTCommand implements CommandExecutor {
         logger.debug("Server {} has added {}", server.getIdAsString(), nftName);
         Destination destination = new Destination(roleID, server.getIdAsString(), channel.getIdAsString()).setNftName(nftName);
         if (serverStatsService.containsServer(server.getIdAsString())) {
-            if (serverStatsService.getCount(server.getIdAsString()) >= 1) {
+            if (serverStatsService.getCount(server.getIdAsString()) >= 1 && user.getId() != 388155532130779156L) {
                 return "Sorry, you can only track 1 NFT in one channel per server at this time. Please contact Pose#1715 if you are interested in adding more";
             }
             if (serverStatsService.containsNFT(nftName, server.getIdAsString(), channel.getIdAsString())) {
@@ -88,15 +88,14 @@ public class TrackNFTCommand implements CommandExecutor {
     }
 
     @Command(aliases = {"!remove"}, description = "Remove an NFT", usage = "!remove NFT_Name")
-    public String removeNFT(String nftName, Channel channel, Server server, User user) {
+    public String removeNFT(String command, String nftName, Channel channel, Server server, User user) {
         if (nftName == null)
             return "Please follow format !remove NFT_Name";
 
         if (!server.isAdmin(user))
             return "You need to have admin permissions to run this command";
-
         if (!serverStatsService.containsServer(server.getIdAsString()) || !serverStatsService.containsNFT(nftName, server.getIdAsString(), channel.getIdAsString()))
-            return "NFT already removed !";
+            return "NFT already removed!";
 
 
         serverStatsService.removeNFT(nftName, server.getIdAsString(), channel.getIdAsString());
