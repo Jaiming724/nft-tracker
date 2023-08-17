@@ -6,6 +6,7 @@ import de.btobastian.sdcf4j.CommandHandler;
 import de.btobastian.sdcf4j.handler.JavacordHandler;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.intent.Intent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +33,7 @@ public class Config {
     @Bean
     @Scope("singleton")
     public DiscordApi discordApi() {
-        return new DiscordApiBuilder().setToken(discordToken).login().join();
+        return new DiscordApiBuilder().setToken(discordToken).addIntents(Intent.GUILD_MESSAGES).login().join();
     }
 
     @Bean

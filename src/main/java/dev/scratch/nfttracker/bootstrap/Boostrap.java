@@ -8,15 +8,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Boostrap implements CommandLineRunner {
-    private final NFTService nftService;
+    @Value("${spring.data.mongodb.uri}")
+    private String t;
 
-
-    @Autowired
-    public Boostrap(NFTService nftService) {
-        this.nftService = nftService;
-    }
 
     @Override
     public void run(String... args) throws Exception {
+        System.out.println("hello" +t);
     }
 }
